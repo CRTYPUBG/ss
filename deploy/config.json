@@ -1,0 +1,23 @@
+{
+  "app": {
+    "name": "Shadowverse",
+    "version": "1.0.0",
+    "description": "A communication app with voice, video, screen sharing, and text chat",
+    "port": 3001
+  },
+  "database": {
+    "host": "sql211.infinityfree.com",
+    "user": "if0_37354591",
+    "password": "eNNrqyMlb4L",
+    "database": "if0_37354591_db_auth",
+    "port": 3306
+  },
+  "clerk": {
+    "publishableKey": "pk_test_aW4tZ3J1Yi0xMy5jbGVyay5hY2NvdW50cy5kZXYk",
+    "secretKey": "sk_test_1CFF5f1GjmEnlUUgkR6ztd6er7kuM6nPFLK5JT5zP2"
+  },
+  "stream": {
+    "apiKey": "58xjeymnndbu",
+    "apiSecret": "g9hfdf2n53mgxnbf9zz29teuhycxj4cn2szqtz6c4qpshh9jwcdruwdex5ctr34d"
+  }
+}

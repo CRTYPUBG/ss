@@ -1,0 +1,29 @@
+{
+  "name": "shadowverse",
+  "version": "1.0.0",
+  "description": "A communication app with voice, video, screen sharing, and text chat",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "dotenv": "^17.2.1",
+    "express": "^4.18.2",
+    "mysql2": "^3.14.3",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "communication",
+    "voice",
+    "video",
+    "chat",
+    "screen-sharing"
+  ],
+  "author": "User",
+  "license": "MIT"
+}

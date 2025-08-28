@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadowverse</title>
+    <!-- Clerk SDK -->
+    <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_aW4tZ3J1Yi0xMy5jbGVyay5hY2NvdW50cy5kZXYk" src="https://in-grub-13.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js" type="text/javascript"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #f5f5f5;
+            min-height: 100vh;
+            animation: gradientShift 15s ease infinite;
+            background-size: 400% 400%;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #7b9dff;
+            font-size: 32px;
+            text-shadow: 0 0 10px rgba(123, 157, 255, 0.5);
+        }
+        
+        #user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn {
+            padding: 8px 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section {
+            background: rgba(34, 34, 34, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section h2 {
+            margin-bottom: 15px;
+            color: #7b9dff;
+            font-size: 24px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Authentication */
+        .auth-form {
+            max-width: 400px;
+            margin: 20px auto;
+            background: rgba(51, 51, 51, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #7b9dff;
+            box-shadow: 0 0 10px rgba(123, 157, 255, 0.5);
+        }
+        
+        .form-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .form-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background-color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .form-tab.active {
+            background-color: #4a7dff;
+            color: white;
+        }
+        
+        .form-tab:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .form-tab:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .form-tab:hover:not(.active) {
+            background-color: #444;
+        }
+        
+        .button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4a7dff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background-color: #3a6eef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+        
+        .message-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .message {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 18px;
+            max-width: 70%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .own {
+            background-color: #4a7dff;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .other {
+            background-color: #444;
+        }
+        
+        .system {
+            background-color: #333;
+            color: #ccc;
+            text-align: center;
+            max-width: 100%;
+        }
+        
+        .message-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+        
+        .send-btn {
+            padding: 10px 20px;
+            background-color: #4a7dff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* Call section */
+        .call-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .call-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .call-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .call-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .start-call {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .start-call:hover:not(:disabled) {
+            background-color: #27ae60;
+        }
+        
+        .end-call {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .end-call:hover:not(:disabled) {
+            background-color: #c0392b;
+        }
+        
+        .toggle-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .toggle-btn:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        
+        .video-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .video-box {
+            width: 45%;
+            height: 300px;
+            background-color: #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-placeholder {
+            text-align: center;
+        }
+        
+        .user-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name-tag {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .video-box {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .call-controls {
+                flex-direction: column;
+            }
+            
+            .call-btn {
+                width: 100%;
+            }
+        }
+        
+        /* Status indicators */
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .status.online {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status.offline {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        /* User list */
+        .user-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .user-item {
+            background-color: #333;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .user-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #7b9dff;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #4a7dff;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Shadowverse</h1>
+            <div id="user-info" class="hidden">
+                <span id="user-name"></span>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </header>
+        
+        <main>
+            <!-- Authentication Section -->
+            <div id="auth-section" class="section">
+                <h2>Authentication</h2>
+                <div id="clerk-components">
+                    <!-- Clerk components will be mounted here -->
+                    <div class="auth-form">
+                        <div class="spinner" id="auth-loading"></div>
+                        <p style="text-align: center;">Loading authentication...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Section -->
+            <div id="chat-section" class="section hidden">
+                <h2>Text Chat</h2>
+                <div class="user-list" id="user-list">
+                    <!-- Online users will be displayed here -->
+                </div>
+                <div class="chat-container">
+                    <div class="message-list" id="message-list">
+                        <div class="message system">
+                            <div>Welcome to Shadowverse chat! Connect with others in real-time.</div>
+                        </div>
+                    </div>
+                    <div class="message-input-container">
+                        <input type="text" class="message-input" id="message-input" placeholder="Type a message...">
+                        <button class="send-btn" id="send-button">Send</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call Section -->
+            <div id="call-section" class="section hidden">
+                <h2>Voice/Video Call</h2>
+                <div class="user-list" id="call-user-list">
+                    <!-- Users available for calling will be displayed here -->
+                </div>
+                <div class="call-controls">
+                    <button class="call-btn start-call" id="start-call">Start Call</button>
+                    <button class="call-btn end-call" id="end-call" disabled>End Call</button>
+                    <button class="call-btn toggle-btn" id="toggle-video">Toggle Video</button>
+                    <button class="call-btn toggle-btn" id="toggle-audio">Toggle Audio</button>
+                    <button class="call-btn toggle-btn" id="share-screen">Share Screen</button>
+                </div>
+                <div class="video-container">
+                    <div class="video-box">
+                        <div class="video-placeholder" id="local-video-placeholder">
+                            <div>Your Video</div>
+                            <div class="user-name-tag">You</div>
+                        </div>
+                        <video class="user-video hidden" id="local-video" autoplay muted></video>
+                    </div>
+                    <div class="video-box">
+                        <div class="video-placeholder" id="remote-video-placeholder">
+                            <div>Remote Video</div>
+                        </div>
+                        <video class="user-video hidden" id="remote-video" autoplay></video>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Notification container -->
+    <div class="notification" id="notification"></div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Performance monitoring
+        if (performance.mark) {
+            performance.mark('app-start');
+        }
+        
+        // Clerk initialization
+        const CLERK_PUBLISHABLE_KEY = "pk_test_aW4tZ3J1Yi0xMy5jbGVyay5hY2NvdW50cy5kZXYk";
+        let clerk;
+        
+        // Initialize Clerk when the SDK is loaded
+        window.addEventListener('load', async function() {
+            console.log('App loading...');
+            hideAuthLoading();
+            
+            if (window.Clerk) {
+                try {
+                    console.log('Loading Clerk SDK...');
+                    clerk = await window.Clerk.load(CLERK_PUBLISHABLE_KEY);
+                    console.log('Clerk loaded successfully');
+                    initializeApp();
+                } catch (err) {
+                    console.error('Failed to load Clerk:', err);
+                    // Fallback to simple authentication if Clerk fails
+                    initializeAppWithFallbackAuth();
+                }
+            } else {
+                console.error('Clerk SDK not loaded');
+                // Fallback to simple authentication if Clerk SDK is not available
+                initializeAppWithFallbackAuth();
+            }
+        });
+        
+        // Simple client-side authentication (fallback)
+        let currentUser = null;
+        let users = [];
+        let socket = null;
+        let localStream = null;
+        let remoteStream = null;
+        let peerConnection = null;
+        
+        // WebRTC configuration
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+        
+        // DOM Elements
+        const authSection = document.getElementById('auth-section');
+        const chatSection = document.getElementById('chat-section');
+        const callSection = document.getElementById('call-section');
+        const userInfo = document.getElementById('user-info');
+        const userName = document.getElementById('user-name');
+        const logoutBtn = document.getElementById('logout-btn');
+        const clerkComponents = document.getElementById('clerk-components');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const startCallBtn = document.getElementById('start-call');
+        const endCallBtn = document.getElementById('end-call');
+        const toggleVideoBtn = document.getElementById('toggle-video');
+        const toggleAudioBtn = document.getElementById('toggle-audio');
+        const shareScreenBtn = document.getElementById('share-screen');
+        const userList = document.getElementById('user-list');
+        const callUserList = document.getElementById('call-user-list');
+        const messageList = document.getElementById('message-list');
+        const localVideo = document.getElementById('local-video');
+        const remoteVideo = document.getElementById('remote-video');
+        const localVideoPlaceholder = document.getElementById('local-video-placeholder');
+        const remoteVideoPlaceholder = document.getElementById('remote-video-placeholder');
+        const notification = document.getElementById('notification');
+        
+        // Initialize the app with Clerk authentication
+        function initializeApp() {
+            if (clerk.user) {
+                // User is already signed in
+                showMainApp(clerk.user);
+            } else {
+                // Show Clerk authentication UI
+                showClerkAuth();
+            }
+        }
+        
+        // Fallback initialization with simple authentication
+        function initializeAppWithFallbackAuth() {
+            // Show the original authentication UI
+            showFallbackAuth();
+        }
+        
+        // Show Clerk authentication UI
+        function showClerkAuth() {
+            authSection.classList.remove('hidden');
+            chatSection.classList.add('hidden');
+            callSection.classList.add('hidden');
+            userInfo.classList.add('hidden');
+            
+            // Clear previous content
+            clerkComponents.innerHTML = '';
+            
+            // Create sign in and sign up tabs
+            const authContainer = document.createElement('div');
+            authContainer.className = 'auth-form';
+            
+            const tabContainer = document.createElement('div');
+            tabContainer.className = 'form-tabs';
+            
+            const signInTab = document.createElement('div');
+            signInTab.className = 'form-tab active';
+            signInTab.textContent = 'Sign In';
+            signInTab.onclick = () => showSignIn();
+            
+            const signUpTab = document.createElement('div');
+            signUpTab.className = 'form-tab';
+            signUpTab.textContent = 'Sign Up';
+            signUpTab.onclick = () => showSignUp();
+            
+            tabContainer.appendChild(signInTab);
+            tabContainer.appendChild(signUpTab);
+            
+            const contentContainer = document.createElement('div');
+            contentContainer.id = 'clerk-content';
+            
+            authContainer.appendChild(tabContainer);
+            authContainer.appendChild(contentContainer);
+            clerkComponents.appendChild(authContainer);
+            
+            // Show sign in by default
+            showSignIn();
+        }
+        
+        function showSignIn() {
+            const contentContainer = document.getElementById('clerk-content');
+            if (contentContainer) {
+                contentContainer.innerHTML = '<div id="sign-in-component"></div>';
+                // Mount Clerk's SignIn component
+                if (window.Clerk) {
+                    window.Clerk.mountSignIn('#sign-in-component');
+                }
+            }
+            
+            // Update tab styling
+            document.querySelectorAll('.form-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('.form-tab').classList.add('active');
+        }
+        
+        function showSignUp() {
+            const contentContainer = document.getElementById('clerk-content');
+            if (contentContainer) {
+                contentContainer.innerHTML = '<div id="sign-up-component"></div>';
+                // Mount Clerk's SignUp component
+                if (window.Clerk) {
+                    window.Clerk.mountSignUp('#sign-up-component');
+                }
+            }
+            
+            // Update tab styling
+            document.querySelectorAll('.form-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.form-tab')[1].classList.add('active');
+        }
+        
+        // Show main app after authentication
+        function showMainApp(user) {
+            currentUser = user.firstName || user.username || user.emailAddresses[0].emailAddress;
+            userName.textContent = currentUser;
+            
+            // Hide auth section and show main sections
+            authSection.classList.add('hidden');
+            chatSection.classList.remove('hidden');
+            callSection.classList.remove('hidden');
+            userInfo.classList.remove('hidden');
+            
+            // Initialize real-time communication
+            initializeRealTimeCommunication();
+            
+            // Show notification
+            showNotification('Welcome, ' + currentUser + '!');
+        }
+        
+        // Show fallback authentication UI
+        function showFallbackAuth() {
+            // This is the original authentication UI
+            // Keep the existing DOM elements and event listeners
+            authSection.classList.remove('hidden');
+            chatSection.classList.add('hidden');
+            callSection.classList.add('hidden');
+            userInfo.classList.add('hidden');
+            
+            // Create fallback auth form
+            clerkComponents.innerHTML = `
+                <div class="auth-form">
+                    <div class="form-tabs">
+                        <div class="form-tab active" data-tab="sign-in">Sign In</div>
+                        <div class="form-tab" data-tab="sign-up">Sign Up</div>
+                    </div>
+                    
+                    <div id="sign-in-form">
+                        <div class="form-group">
+                            <label for="sign-in-username">Username</label>
+                            <input type="text" id="sign-in-username" placeholder="Enter your username">
+                        </div>
+                        <div class="form-group">
+                            <label for="sign-in-password">Password</label>
+                            <input type="password" id="sign-in-password" placeholder="Enter your password">
+                        </div>
+                        <button class="button" id="sign-in-btn">Sign In</button>
+                    </div>
+                    
+                    <div id="sign-up-form" class="hidden">
+                        <div class="form-group">
+                            <label for="sign-up-name">Name</label>
+                            <input type="text" id="sign-up-name" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label for="sign-up-username">Username</label>
+                            <input type="text" id="sign-up-username" placeholder="Choose a username">
+                        </div>
+                        <div class="form-group">
+                            <label for="sign-up-password">Password</label>
+                            <input type="password" id="sign-up-password" placeholder="Create a password">
+                        </div>
+                        <button class="button" id="sign-up-btn">Sign Up</button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners for the fallback authentication
+            document.querySelector('.form-tab[data-tab="sign-in"]').addEventListener('click', function() {
+                this.classList.add('active');
+                document.querySelector('.form-tab[data-tab="sign-up"]').classList.remove('active');
+                document.getElementById('sign-in-form').classList.remove('hidden');
+                document.getElementById('sign-up-form').classList.add('hidden');
+            });
+            
+            document.querySelector('.form-tab[data-tab="sign-up"]').addEventListener('click', function() {
+                this.classList.add('active');
+                document.querySelector('.form-tab[data-tab="sign-in"]').classList.remove('active');
+                document.getElementById('sign-up-form').classList.remove('hidden');
+                document.getElementById('sign-in-form').classList.add('hidden');
+            });
+            
+            document.getElementById('sign-in-btn').addEventListener('click', function() {
+                const username = document.getElementById('sign-in-username').value;
+                const password = document.getElementById('sign-in-password').value;
+                
+                if (username && password) {
+                    signInUser(username);
+                } else {
+                    showNotification('Please enter both username and password');
+                }
+            });
+            
+            document.getElementById('sign-up-btn').addEventListener('click', function() {
+                const name = document.getElementById('sign-up-name').value;
+                const username = document.getElementById('sign-up-username').value;
+                const password = document.getElementById('sign-up-password').value;
+                
+                if (name && username && password) {
+                    signUpUser(name, username);
+                } else {
+                    showNotification('Please fill in all fields');
+                }
+            });
+        }
+        
+        // Authentication functions
+        function signInUser(username) {
+            currentUser = username;
+            userName.textContent = username;
+            
+            // Hide auth section and show main sections
+            authSection.classList.add('hidden');
+            chatSection.classList.remove('hidden');
+            callSection.classList.remove('hidden');
+            userInfo.classList.remove('hidden');
+            
+            // Initialize real-time communication
+            initializeRealTimeCommunication();
+            
+            // Clear form fields
+            document.getElementById('sign-in-username').value = '';
+            document.getElementById('sign-in-password').value = '';
+            
+            // Show notification
+            showNotification('Welcome back, ' + username + '!');
+        }
+        
+        function signUpUser(name, username) {
+            currentUser = username;
+            userName.textContent = name;
+            
+            // Hide auth section and show main sections
+            authSection.classList.add('hidden');
+            chatSection.classList.remove('hidden');
+            callSection.classList.remove('hidden');
+            userInfo.classList.remove('hidden');
+            
+            // Initialize real-time communication
+            initializeRealTimeCommunication();
+            
+            // Clear form fields
+            document.getElementById('sign-up-name').value = '';
+            document.getElementById('sign-up-username').value = '';
+            document.getElementById('sign-up-password').value = '';
+            
+            // Show notification
+            showNotification('Welcome, ' + name + '! Your account has been created.');
+        }
+        
+        function signOutUser() {
+            // If using Clerk, sign out through Clerk
+            if (window.Clerk && clerk.user) {
+                window.Clerk.signOut();
+                showClerkAuth();
+            } else {
+                // Otherwise use fallback sign out
+                // Disconnect from real-time communication
+                if (socket) {
+                    socket.close();
+                }
+                
+                currentUser = null;
+                
+                // Show auth section and hide main sections
+                authSection.classList.remove('hidden');
+                chatSection.classList.add('hidden');
+                callSection.classList.add('hidden');
+                userInfo.classList.add('hidden');
+                
+                // Show notification
+                showNotification('You have been signed out.');
+            }
+        }
+        
+        // Logout button event listener
+        logoutBtn.addEventListener('click', signOutUser);
+        
+        // Check for Clerk authentication changes
+        if (window.Clerk) {
+            window.Clerk.addListener((event) => {
+                if (event.user) {
+                    // User signed in
+                    showMainApp(event.user);
+                } else if (event.session === null) {
+                    // User signed out
+                    showClerkAuth();
+                }
+            });
+        }
+        
+        // Real-time communication initialization
+        function initializeRealTimeCommunication() {
+            try {
+                console.log('Initializing real-time communication...');
+                // Connect to WebSocket server
+                socket = io({reconnection: true, reconnectionDelay: 1000, reconnectionAttempts: 5});
+                
+                // Handle connection
+                socket.on('connect', function() {
+                    console.log('Connected to WebSocket server');
+                    addMessageToChat('System', 'Connected to server', true);
+                    
+                    // Send user join event
+                    socket.emit('user-join', {
+                        id: socket.id,
+                        name: currentUser,
+                        timestamp: new Date()
+                    });
+                });
+                
+                // Handle connection error
+                socket.on('connect_error', function(error) {
+                    console.error('WebSocket connection error:', error);
+                    addMessageToChat('System', 'Connection error: ' + error.message, true);
+                });
+                
+                // Handle disconnection
+                socket.on('disconnect', function(reason) {
+                    console.log('Disconnected from WebSocket server:', reason);
+                    addMessageToChat('System', 'Disconnected from server: ' + reason, true);
+                });
+                
+                // Handle user joined
+                socket.on('user-joined', function(userData) {
+                    addMessageToChat('System', `${userData.name} joined the chat`, true);
+                });
+                
+                // Handle chat messages
+                socket.on('chat-message', function(messageData) {
+                    addMessageToChat(messageData.sender, messageData.text, false);
+                });
+                
+                // Handle call events
+                socket.on('call-invitation', function(callData) {
+                    if (confirm(`${callData.caller} is calling. Do you want to answer?`)) {
+                        socket.emit('call-accepted', callData);
+                        startCall();
+                    }
+                });
+                
+                // Handle user left
+                socket.on('user-left', function(socketId) {
+                    addMessageToChat('System', 'A user left the chat', true);
+                });
+                
+                // Add event listeners for UI elements
+                sendButton.addEventListener('click', sendMessage);
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+                
+                startCallBtn.addEventListener('click', startCall);
+                endCallBtn.addEventListener('click', endCall);
+                toggleVideoBtn.addEventListener('click', toggleVideo);
+                toggleAudioBtn.addEventListener('click', toggleAudio);
+                shareScreenBtn.addEventListener('click', shareScreen);
+            } catch (error) {
+                console.error('Error initializing real-time communication:', error);
+                addMessageToChat('System', 'Failed to initialize real-time communication: ' + error.message, true);
+            }
+            
+            // Add current user to users list
+            users = [
+                { id: 1, name: 'Alice', online: true },
+                { id: 2, name: 'Bob', online: true },
+                { id: 3, name: 'Charlie', online: true },
+                { id: 4, name: 'Diana', online: true }
+            ];
+            
+            // Update user lists
+            updateUserLists();
+        }
+        
+        function updateUserLists() {
+            // Update chat user list
+            userList.innerHTML = '';
+            users.forEach(user => {
+                if (user.name !== currentUser) {
+                    const userItem = document.createElement('div');
+                    userItem.className = 'user-item';
+                    userItem.innerHTML = `
+                        <span class="status online"></span>
+                        <span>${user.name}</span>
+                    `;
+                    userList.appendChild(userItem);
+                }
+            });
+            
+            // Update call user list
+            callUserList.innerHTML = '';
+            users.forEach(user => {
+                if (user.name !== currentUser) {
+                    const userItem = document.createElement('div');
+                    userItem.className = 'user-item';
+                    userItem.innerHTML = `
+                        <span class="status online"></span>
+                        <span>${user.name}</span>
+                    `;
+                    callUserList.appendChild(userItem);
+                }
+            });
+        }
+        
+        // Chat functions
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && socket) {
+                const messageData = {
+                    sender: currentUser,
+                    text: message,
+                    timestamp: new Date()
+                };
+                
+                // Send message via WebSocket
+                socket.emit('chat-message', messageData);
+                
+                // Display own message
+                addMessageToChat(currentUser, message, true);
+                messageInput.value = '';
+            }
+        }
+        
+        function addMessageToChat(sender, text, isOwn) {
+            const now = new Date();
+            const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                              now.getMinutes().toString().padStart(2, '0');
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = isOwn ? 'message own' : 'message other';
+            messageElement.innerHTML = `
+                <div><strong>${sender}</strong> <small>${timeString}</small></div>
+                <div>${text}</div>
+            `;
+            
+            messageList.appendChild(messageElement);
+            messageList.scrollTop = messageList.scrollHeight;
+        }
+        
+        // Call functions
+        function startCall() {
+            // Check if we're already in a call
+            if (localStream) {
+                showNotification('You are already in a call. Please end the current call first.');
+                return;
+            }
+            
+            // Show video elements
+            localVideoPlaceholder.classList.add('hidden');
+            remoteVideoPlaceholder.classList.add('hidden');
+            localVideo.classList.remove('hidden');
+            remoteVideo.classList.remove('hidden');
+            
+            // Get local stream
+            getLocalStream();
+            
+            // Update button states
+            startCallBtn.disabled = true;
+            endCallBtn.disabled = false;
+            
+            addMessageToChat('System', 'Call started', true);
+            showNotification('Call started');
+        }
+        
+        function endCall() {
+            // Hide video elements
+            localVideoPlaceholder.classList.remove('hidden');
+            remoteVideoPlaceholder.classList.remove('hidden');
+            localVideo.classList.add('hidden');
+            remoteVideo.classList.add('hidden');
+            
+            // Stop local stream
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            // Close peer connection
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            // Update button states
+            startCallBtn.disabled = false;
+            endCallBtn.disabled = true;
+            
+            addMessageToChat('System', 'Call ended', true);
+            showNotification('Call ended');
+        }
+        
+        function toggleVideo() {
+            if (localStream) {
+                const videoTracks = localStream.getVideoTracks();
+                if (videoTracks.length > 0) {
+                    videoTracks[0].enabled = !videoTracks[0].enabled;
+                    showNotification(videoTracks[0].enabled ? 'Video enabled' : 'Video disabled');
+                }
+            } else {
+                showNotification('No video stream available');
+            }
+        }
+        
+        function toggleAudio() {
+            if (localStream) {
+                const audioTracks = localStream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    audioTracks[0].enabled = !audioTracks[0].enabled;
+                    showNotification(audioTracks[0].enabled ? 'Audio enabled' : 'Audio disabled');
+                }
+            } else {
+                showNotification('No audio stream available');
+            }
+        }
+        
+        function shareScreen() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+                navigator.mediaDevices.getDisplayMedia({ video: true })
+                    .then(function(stream) {
+                        // Replace the local stream with the screen share stream
+                        if (localStream) {
+                            localStream.getTracks().forEach(track => track.stop());
+                        }
+                        localStream = stream;
+                        localVideo.srcObject = stream;
+                        
+                        addMessageToChat('System', 'Screen sharing started', true);
+                        showNotification('Screen sharing started');
+                        
+                        // When screen sharing stops, restore the camera
+                        stream.getVideoTracks()[0].addEventListener('ended', function() {
+                            addMessageToChat('System', 'Screen sharing ended', true);
+                            showNotification('Screen sharing ended');
+                            // Restore camera if call is still active
+                            if (!startCallBtn.disabled) { // Call is still active
+                                getLocalStream();
+                            }
+                        });
+                    })
+                    .catch(function(error) {
+                        console.error('Error sharing screen:', error);
+                        addMessageToChat('System', 'Error sharing screen: ' + error.message, true);
+                        showNotification('Error sharing screen: ' + error.message);
+                    });
+            } else {
+                showNotification('Screen sharing is not supported in your browser. Please try Chrome, Edge, or Firefox.');
+            }
+        }
+        
+        function getLocalStream() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                // First, try to get video only
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(videoStream) {
+                        localStream = videoStream;
+                        localVideo.srcObject = videoStream;
+                        
+                        // Then try to add audio
+                        return navigator.mediaDevices.getUserMedia({ audio: true });
+                    })
+                    .then(function(audioStream) {
+                        // Add audio tracks to the existing stream
+                        audioStream.getAudioTracks().forEach(track => {
+                            localStream.addTrack(track);
+                        });
+                        console.log('Successfully accessed both camera and microphone');
+                        addMessageToChat('System', 'Camera and microphone access granted', true);
+                        showNotification('Camera and microphone access granted');
+                    })
+                    .catch(function(error) {
+                        console.log('Error accessing media devices:', error);
+                        
+                        // If video failed, try audio only
+                        if (error.name === 'NotAllowedError' || error.name === 'NotFoundError' || error.name === 'NotReadableError') {
+                            navigator.mediaDevices.getUserMedia({ audio: true })
+                                .then(function(audioStream) {
+                                    localStream = audioStream;
+                                    localVideo.srcObject = audioStream;
+                                    addMessageToChat('System', 'Audio only mode activated. ' + error.message, true);
+                                    showNotification('Audio only mode activated');
+                                })
+                                .catch(function(audioError) {
+                                    console.error('Error accessing audio:', audioError);
+                                    addMessageToChat('System', 'Could not access camera or microphone. Please check permissions and ensure no other application is using them. You can still use text chat.', true);
+                                    showNotification('Could not access camera or microphone. You can still use text chat.');
+                                });
+                        } else {
+                            addMessageToChat('System', 'Error accessing camera/microphone: ' + error.message + '. You can still use text chat.', true);
+                            showNotification('Error accessing camera/microphone. You can still use text chat.');
+                        }
+                    });
+            } else {
+                addMessageToChat('System', 'Your browser does not support WebRTC. You can still use text chat.', true);
+                showNotification('Your browser does not support WebRTC. You can still use text chat.');
+            }
+        }
+        
+        // WebRTC signaling functions
+        function handleOffer(offer) {
+            // In a real implementation, this would handle the offer
+            console.log('Offer received:', offer);
+        }
+        
+        function handleAnswer(answer) {
+            // In a real implementation, this would handle the answer
+            console.log('Answer received:', answer);
+        }
+        
+        function handleIceCandidate(candidate) {
+            // In a real implementation, this would handle the ICE candidate
+            console.log('ICE candidate received:', candidate);
+        }
+        
+        // Utility functions
+        function hideAuthLoading() {
+            const loadingElement = document.getElementById('auth-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        }
+        
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            if (performance.mark) {
+                performance.mark('app-loaded');
+                performance.measure('app-load-time', 'app-start', 'app-loaded');
+                const measure = performance.getEntriesByName('app-load-time')[0];
+                console.log('App loaded in ' + measure.duration + ' milliseconds');
+            }
+        });
+    </script>
+</body>
+</html>
